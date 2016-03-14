@@ -105,7 +105,7 @@ def main(in_dir, out_dir, batch_size=500, n_threads=2):
     if not path.exists(out_dir):
         makedirs(out_dir)
     # Get total number of input files for tracking progress
-    total_files = len(listdir(in_dir))
+    total_files = len(list(iter_dir(in_dir)))
     # Load nlp object
     print('Loading spacy.en.English, this may take a while....')
     nlp = spacy.en.English()
