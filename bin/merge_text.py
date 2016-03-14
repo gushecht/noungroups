@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals, division
-import io
-from os import path
+from os import path, listdir, makedirs
 import re
+import time
 
 import spacy.en
 
@@ -31,21 +31,23 @@ LABELS = {
 }
 
 
-# Creates an iterator that returns one line at a time to reduce memory use
+# Creates a generator that returns the path to each file in a directory.
+# Note that it does not work for nested directories.
+def iter_dir(loc):
+    # If the provided path is to a file, not a directory, return the path
+    if not path.isdir(loc):
+        yield loc
+    # Otherwise, return the path iterator
+    else:
+        for fn in listdir(loc):
+            yield path.join(loc, fn)
+
+
+# Creates a generator that returns one line of a file at a time
 def line_iterator(in_file):
     with open(in_file, 'r') as file_:
         for line in file_:
             yield unicode(line)
-
-
-# Takes a doc object from the pipe, puts it into the transformation function
-# and writes the output to file
-def parse_and_transform(batch_id, input_, out_dir):
-    out_loc = path.join(out_dir, '%d.txt' % batch_id)
-    if path.exists(out_loc):
-        return None
-    with io.open(out_loc, 'w', encoding='utf8') as file_:
-        file_.write(transform_doc(input_))
 
 
 # Takes a doc object, constructs entities and adds tags, returning a string
@@ -59,7 +61,8 @@ def transform_doc(doc):
     strings = []
     for sent in doc.sents:
         if sent.text.strip():
-            strings.append(' '.join(represent_word(w) for w in sent if not w.is_space))
+            strings.append(' '.join(represent_word(w)
+                           for w in sent if not w.is_space))
     if strings:
         return '\n'.join(strings) + '\n'
     else:
@@ -78,20 +81,45 @@ def represent_word(word):
 
 
 @plac.annotations(
-    in_file=('Location of input file'),
-    out_dir=('Path to output directory'),
-    batch_size=('Number of sequences of unicode objects to accumulate in buffer', 'option', 'b', int),
-    n_threads=('Number of processes to use while operating on unicode objects', 'option', 'p', int)
+    in_dir=('Location of input directory'),
+    out_dir=('Location of output directory'),
+    batch_size=(
+        'Number of sequences of unicode objects to accumulate in buffer',
+        'option', 'b', int),
+    n_threads=(
+        'Number of processes to use while operating on unicode objects',
+        'option', 'p', int)
 )
-def main(in_file, out_dir, batch_size=500, n_threads=2):
+def main(in_dir, out_dir, batch_size=500, n_threads=2):
+    # Create the output directory, if it doesn't exist
     if not path.exists(out_dir):
-        path.join(out_dir)
-    else:
-        print('Loading spacy.en.English, this may take a while....')
-        nlp = spacy.en.English()
-        print('spacy.en.English loaded!')
-        for i, doc in enumerate(nlp.pipe(line_iterator(in_file), batch_size, n_threads)):
-            parse_and_transform(i, doc, out_dir)
+        makedirs(out_dir)
+    # Get total number of input files for tracking progress
+    total_files = len(listdir(in_dir))
+    # Load nlp object
+    print('Loading spacy.en.English, this may take a while....')
+    nlp = spacy.en.English()
+    print('spacy.en.English loaded!')
+    # For each input file
+    for i, file in enumerate(iter_dir(in_dir)):
+        print('Tagging file %s of %s' % (i, total_files))
+        # Create the first output file
+        current_time = str(int(time.time()))
+        out_loc = current_time + '.txt'
+        target = open(path.join(out_dir, out_loc), 'w')
+        # Create empty string to store tagged text
+        tagged_text = ''
+        for j, doc in enumerate(nlp.pipe(line_iterator(file), batch_size=batch_size,
+                                         n_threads=n_threads)):
+            tagged_text += transform_doc(doc)
+            # Write to the output file occasionally and create a new one
+            if j % batch_size == 0 and j != 0:
+                target.write(tagged_text)
+                target.close()
+                current_time = str(int(time.time()))
+                out_loc = current_time + '.txt'
+                target = open(path.join(out_dir, out_loc), 'w')
+
 
 if __name__ == '__main__':
     plac.call(main)
