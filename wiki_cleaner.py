@@ -16,14 +16,20 @@ def clean_string(string):
 
 
 # Creates a generator that returns the path to each file in a directory.
-# Note that it does not work for nested directories.
+# Note that this only works for one level of nesting, e.g. 
+# dir/dir/file, not dir/dir/dir/file
 def iter_dir(loc):
-    # If the provided path is to a file, not a directory, return the path
-    if not path.isdir(loc):
-        yield loc
-    # Otherwise, return the path iterator
-    else:
-        for fn in listdir(loc):
+    # For each filename in the directory
+    for fn in os.listdir(loc):
+        # If the filename is actually a path to a directory
+        if path.isdir(path.join(loc, fn)):
+            # For each filename in that subdirectory
+            for sub in os.listdir(path.join(loc, fn)):
+                # Yield the filename
+                yield path.join(loc, fn, sub)
+        # Otherwise, if the filename is a path to a file
+        else:
+            # Yield the filename
             yield path.join(loc, fn)
 
 
