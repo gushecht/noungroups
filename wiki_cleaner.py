@@ -1,7 +1,6 @@
 import re
 import plac
 from os import path, listdir, makedirs
-import time
 
 empty_doc_pattern = re.compile('<doc.*>\s.+\s\s\s<\/doc>')
 doc_tag_pattern = re.compile('<\/?doc.*?>')
@@ -16,15 +15,15 @@ def clean_string(string):
 
 
 # Creates a generator that returns the path to each file in a directory.
-# Note that this only works for one level of nesting, e.g. 
+# Note that this only works for one level of nesting, e.g.
 # dir/dir/file, not dir/dir/dir/file
 def iter_dir(loc):
     # For each filename in the directory
-    for fn in os.listdir(loc):
+    for fn in listdir(loc):
         # If the filename is actually a path to a directory
         if path.isdir(path.join(loc, fn)):
             # For each filename in that subdirectory
-            for sub in os.listdir(path.join(loc, fn)):
+            for sub in listdir(path.join(loc, fn)):
                 # Yield the filename
                 yield path.join(loc, fn, sub)
         # Otherwise, if the filename is a path to a file
