@@ -35,18 +35,22 @@ LABELS = {
 # Note that this only works for one level of nesting, e.g.
 # dir/dir/file, not dir/dir/dir/file
 def iter_dir(loc):
-    # For each filename in the directory
-    for fn in listdir(loc):
-        # If the filename is actually a path to a directory
-        if path.isdir(path.join(loc, fn)):
-            # For each filename in that subdirectory
-            for sub in listdir(path.join(loc, fn)):
+    # If the path is actually to a file, not a directory, yield filename
+    if not path.isdir(path.join(loc)):
+        yield loc
+    else:
+        # For each filename in the directory
+        for fn in listdir(loc):
+            # If the filename is actually a path to a directory
+            if path.isdir(path.join(loc, fn)):
+                # For each filename in that subdirectory
+                for sub in listdir(path.join(loc, fn)):
+                    # Yield the filename
+                    yield path.join(loc, fn, sub)
+            # Otherwise, if the filename is a path to a file
+            else:
                 # Yield the filename
-                yield path.join(loc, fn, sub)
-        # Otherwise, if the filename is a path to a file
-        else:
-            # Yield the filename
-            yield path.join(loc, fn)
+                yield path.join(loc, fn)
 
 
 # Creates a generator that returns one line of a file at a time
