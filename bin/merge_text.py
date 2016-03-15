@@ -122,16 +122,12 @@ def main(in_dir, out_dir, batch_size=500, n_threads=2):
         target = open(path.join(out_dir, out_loc), 'w')
         # Create empty string to store tagged text
         tagged_text = ''
-        for j, doc in enumerate(nlp.pipe(line_iterator(file), batch_size=batch_size,
+        for j, doc in enumerate(nlp.pipe(line_iterator(file),
+                                         batch_size=batch_size,
                                          n_threads=n_threads)):
             tagged_text += transform_doc(doc)
-            # Write to the output file occasionally and create a new one
-            if j % batch_size == 0 and j != 0:
-                target.write(tagged_text)
-                target.close()
-                current_time = str(int(time.time()))
-                out_loc = current_time + '_' + str(i) + '.txt'
-                target = open(path.join(out_dir, out_loc), 'w')
+        target.write(tagged_text)
+        target.close()
 
 
 if __name__ == '__main__':
