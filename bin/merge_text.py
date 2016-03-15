@@ -52,11 +52,14 @@ def iter_dir(loc):
                 # Yield the filename
                 yield path.join(loc, fn)
 
+non_unicode_pattern = re.compile('[^\x00-\x7F]+')
+
 
 # Creates a generator that returns one line of a file at a time
 def line_iterator(in_file):
     with open(in_file, 'r') as file_:
         for line in file_:
+            line = non_unicode_pattern.sub('', line)
             yield unicode(line)
 
 
@@ -115,7 +118,7 @@ def main(in_dir, out_dir, batch_size=500, n_threads=2):
         print('Tagging file %s of %s' % (i, total_files))
         # Create the first output file
         current_time = str(int(time.time()))
-        out_loc = current_time + '.txt'
+        out_loc = current_time + '_' + str(i) + '.txt'
         target = open(path.join(out_dir, out_loc), 'w')
         # Create empty string to store tagged text
         tagged_text = ''
@@ -127,7 +130,7 @@ def main(in_dir, out_dir, batch_size=500, n_threads=2):
                 target.write(tagged_text)
                 target.close()
                 current_time = str(int(time.time()))
-                out_loc = current_time + '.txt'
+                out_loc = current_time + '_' + str(i) + '.txt'
                 target = open(path.join(out_dir, out_loc), 'w')
 
 
