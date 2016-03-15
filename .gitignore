@@ -60,3 +60,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Gus added (20160314) pi day!!
+*.ann
+*.pkl
+*.bz2
+*.gz

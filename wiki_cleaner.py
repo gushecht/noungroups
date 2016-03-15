@@ -45,10 +45,11 @@ def main(in_dir, out_dir):
     if not path.exists(out_dir):
         makedirs(out_dir)
     # Get total number of input files for tracking progress
-    total_files = len(listdir(in_dir))
+    total_files = len(list(iter_dir(in_dir)))
     # For each input file
     for i, file in enumerate(iter_dir(in_dir)):
-        print('Cleaning file %s of %s' % (i, total_files))
+        if i % 100 == 0:
+            print('Cleaning file %s of %s' % (i, total_files))
         # Create the output file
         out_loc = str(i) + '.txt'
         with open(path.join(out_dir, out_loc), 'w') as target:
