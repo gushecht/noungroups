@@ -23,9 +23,8 @@ LABELS = [
 @plac.annotations(
     in_dir=('Location of files to be read in'),
     out_dir=('Location to write output file'),
-    percent=('Percent of top n nouns to keep', 'option', 'p', float)
 )
-def main(in_dir, out_dir, percent=0.1):
+def main(in_dir, out_dir):
     sc = ps.SparkContext('local[4]')
     text_files = sc.textFile(in_dir)
     counts = text_files.flatMap(lambda line: line.split(' ')) \
@@ -35,12 +34,14 @@ def main(in_dir, out_dir, percent=0.1):
                        .cache()
     total_nouns = counts.values() \
                         .reduce(add)
-    top_n = counts.map(lambda (word, count): (word, count / float(total_nouns))) \
-                  .sortBy(lambda (word, count): count, ascending=False) \
-                  .take(int(total_nouns * percent / 100.0))
-    with open(path.join(out_dir, 'top_n_nouns.txt'), 'w+') as f:
-        for word in top_n:
-            f.write(str(word) + '\n')
+    sorted_nouns = counts.map(lambda (word, count): (word, count / float(total_nouns))) \
+                         .sortBy(lambda (word, count): count, ascending=False) \
+                         .keys() \
+                         .saveAsTextFile(path.join(out_dir, 'sorted_nouns.txt'))
+                         # .collect()
+    # with open(path.join(out_dir, 'sorted_nouns.txt'), 'w+') as f:
+    #     for word in sorted_nouns:
+    #         f.write(str(word) + '\n')
     with open(path.join(out_dir, 'total_nouns.txt'), 'w+') as f:
         f.write('Total nouns: ' + str(total_nouns))
 

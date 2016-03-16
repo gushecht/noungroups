@@ -3,6 +3,7 @@ import bz2
 from toolz import partition_all
 from os import path, listdir, makedirs
 import re
+import multiprocessing
 
 import spacy.en
 
@@ -75,7 +76,6 @@ def iter_lines(loc):
 
 # Takes a doc object, constructs entities and adds tags, returning a string
 def transform_doc(doc):
-    # print(type(doc))
     for ent in doc.ents:
         ent.merge(ent.root.tag_, ent.text, LABELS[ent.label_])
     for np in doc.noun_chunks:
@@ -93,17 +93,23 @@ def transform_doc(doc):
         return ''
 
 
+# Takes a chunk of text, processes it and saves it.
 def save_parses(batch_id, input_, out_dir, n_threads, batch_size):
+    # Creates string for path of output file
     out_loc = path.join(out_dir, '%d.txt' % batch_id)
+    # If there's already a file there, e.g. you're restarting an interrupted
+    # job, this will skip that batch (major time saver!!)
     if path.exists(out_loc):
         return None
     print('Batch', batch_id)
     nlp = spacy.en.English()
     tagged_text = ''
+    # Convert text into doc objects and tag them
     for i, doc in enumerate(nlp.pipe(input_,
                                      batch_size=batch_size,
                                      n_threads=n_threads)):
         tagged_text += transform_doc(doc)
+    # Save tagged text to file
     with open(out_loc, 'w') as f:
         f.write(tagged_text)
 
@@ -127,7 +133,7 @@ def represent_word(word):
     batch_size=(
         "Number of texts to accumulate in a buffer", "option", "b", int)
 )
-def main(in_dir, out_dir, n_process=1, n_thread=4, batch_size=100):
+def main(in_dir, out_dir, n_process=int(multiprocessing.cpu_count() * .75), n_thread=4, batch_size=10000):
     # Create the output directory, if it doesn't exist
     if not path.exists(out_dir):
         makedirs(out_dir)
