@@ -13,6 +13,7 @@ from itertools import izip
 import pickle
 
 # For now, let's just use the data that comes with it
+
 model = sense2vec.load()
 
 # All lables for nouns

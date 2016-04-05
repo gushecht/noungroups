@@ -1,45 +1,40 @@
 import plac
+import logging
+
 import pyspark as ps
 from pyspark.mllib.feature import Word2Vec
-from os import path
 
-LABELS = [
-    'ENT',
-    'PERSON',
-    'NORP',
-    'FAC',
-    'ORG',
-    'GPE',
-    'LOC',
-    'LAW',
-    'PRODUCT',
-    'EVENT',
-    'WORK_OF_ART',
-    'LANGUAGE',
-    'NOUN'
-]
+in_loc = 's3n://AKIAIH5CUVMKDMLAW26Q:ABHCJrZt1FbG63h4u5AxY3kGp5i+8nWTqguzsSWD@gushecht/pos_tagged'
+
+from os import path
+import cPickle
+
+logger = logging.getLogger(__name__)
 
 
 @plac.annotations(
-    in_dir=('Location of files to be read in'),
-    out_dir=('Location to save word vectors and model')
+    in_loc=('Path to input files'),
+    out_dir=('Location to store output file')
 )
-def main(in_dir, out_dir):
-    sc = ps.SparkContext('local[4]')
-    docs = sc.textFile(in_dir) \
-             .map(lambda line: line.split(' '))
-    model = Word2Vec().setVectorSize(100).setSeed(42).fit(docs)
-    all_vectors = dict(model.getVectors())
-    noun_vectors = {}
-    for key, value in all_vectors.iteritems():
-        if any(label in key for label in LABELS):
-            noun_vectors[key] = value
+def main(in_loc, out_dir):
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s',
+                        level=logging.INFO)
 
+    sc = ps.SparkContext(appName='Word2Vec')
+    logger.info('Distributing input data')
+    raw_data = sc.textFile(in_loc).cache()
+    data = raw_data.map(lambda line: line.split(' '))
+    print(data.getNumPartitions())
 
-    model.save(sc, path.join(out_dir, 'spark_word2vec_model'))
-    with open(path.join(out_dir, 'word_vector_map.txt'), 'w') as f:
-        for word, vector in vectors:
-            f.write(str(word) + '\n')
+    logger.info('Training Word2Vec model')
+    model = Word2Vec().setVectorSize(128).setNumIterations(5).fit(data)
+
+    w2v_dict = model.getVectors()
+    logger.info('Saving word to vectors dictionary')
+    with open(path.join(out_dir, 'w2v_dict.pkl'), 'wb') as f:
+        cPickle.dump(w2v_dict, f, cPickle.HIGHEST_PROTOCOL)
+
+    model.save(sc, out_dir)
 
 if __name__ == '__main__':
     plac.call(main)

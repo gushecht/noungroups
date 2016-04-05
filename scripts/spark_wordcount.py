@@ -31,19 +31,15 @@ def main(in_dir, out_dir):
                        .filter(lambda word: any(label in word for label in LABELS)) \
                        .map(lambda word: (word, 1)) \
                        .reduceByKey(add) \
-                       .cache()
+                       .persist(storageLevel=ps.StorageLevel.MEMORY_AND_DISK)
     total_nouns = counts.values() \
                         .reduce(add)
     sorted_nouns = counts.map(lambda (word, count): (word, count / float(total_nouns))) \
                          .sortBy(lambda (word, count): count, ascending=False) \
-                         .keys() \
-                         .saveAsTextFile(path.join(out_dir, 'sorted_nouns.txt'))
-                         # .collect()
-    # with open(path.join(out_dir, 'sorted_nouns.txt'), 'w+') as f:
-    #     for word in sorted_nouns:
-    #         f.write(str(word) + '\n')
-    with open(path.join(out_dir, 'total_nouns.txt'), 'w+') as f:
-        f.write('Total nouns: ' + str(total_nouns))
+                         .collect()
+    with open(path.join(out_dir, 'sorted_nouns.txt'), 'w+') as f:
+        for word in sorted_nouns:
+            f.write(str(word) + '\n')
 
 if __name__ == '__main__':
     plac.call(main)

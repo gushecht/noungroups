@@ -66,3 +66,7 @@ target/
 *.pkl
 *.bz2
 *.gz
+saved_objects/*
+wordcount_output/*
+data/*
+images/*
