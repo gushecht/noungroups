@@ -28,7 +28,7 @@ Every word has a part of speech.  For example, in the sentence 'the bird ate see
 word2vec is an algorithm for converting words into vectors.  Excitingly, it was found that the vector representation of a word has encodes some of the semantic meaning of the word.  For example, if you take the vector for 'king', subtract the vector for 'man', and add the vector for 'woman', you get the vector for 'queen'.
 
 Additionally, it was found that the same could be done for other conceptually-related words, such as nations and capitals.
-![Nations and capitals](http://deeplearning4j.org/img/countries_capitals.png)
+<img src="http://deeplearning4j.org/img/countries_capitals.png" width="500px">
 
 From this image of word vectors projected down to two dimensions, it's clear that conceptually-related words occupy regions together.  That was the motivation for this project.
 
@@ -40,7 +40,8 @@ After the part of speech tagging and vectorizing were finished, I had just over 
 
 Here's a chart of the cumulative frequency of nouns/entities that validated my choice to set aside the vast majority of the nouns/entities.  The x-axis is in 1000s.
 
-![Cumulative frequencies](images/cumulative_frequencies.png)
+<img src="images/cumulative_frequencies.png" width="500px">
+
 
 ### Clustering
 Clustering is an interesting problem when you don't know how many clusters there should be, which was the case with noungroups.  The only option was the brute force method: trying a range of numbers of clusters and seeing which was the best.  I went with two for the minimum and (n / 2) ^ 0.5, in this case ~ 223, for the maximum.  To compare clusterings, I calculated the within set sum of squared errors (WSSSE) for each one.  The WSSSE measures how dispersed each cluster is.  Plotting them in a chart reveals an 'elbow' in the curve where the rate of decrease in WSSSE decreases significantly.  That elbow was at k clusters, which I took to be the optimal number.
