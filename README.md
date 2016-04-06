@@ -38,64 +38,15 @@ One limitation of word2vec is that it treats words with multiple meanings as tho
 ### Filtering nouns/entities
 After the part of speech tagging and vectorizing were finished, I had just over 27 million unique nouns/entities (27,137,917) and their vector representations.  I decided to filter that down to the top 100,000 most frequently used in order to reduce the time required for the clustering step.  Additionally, my intuition told me that ignoring less frequent nouns/entities would reduce noise in the clustering step.
 
-Here's a chart of the cumulative frequency of nouns/entities.  The x-axis is in 1000s.  The line doesn't reach 1 because I removed a few outlier noun/entities that spaCy tagged, such as 'she' and 'he', that had significantly higher frequencies than other words.
+Here's a chart of the cumulative frequency of nouns/entities that validated my choice to set aside the vast majority of the nouns/entities.  The x-axis is in 1000s.
 
 ![Cumulative frequencies](images/cumulative_frequencies.png)
 
+### Clustering
+Clustering is an interesting problem when you don't know how many clusters there should be, which was the case with noungroups.  The only option was the brute force method: trying a range of numbers of clusters and seeing which was the best.  I went with two for the minimum and (n / 2) ^ 0.5, in this case ~ 223, for the maximum.  To compare clusterings, I calculated the within set sum of squared errors (WSSSE) for each one.  The WSSSE measures how dispersed each cluster is.  Plotting them in a chart reveals an 'elbow' in the curve where the rate of decrease in WSSSE decreases significantly.  That elbow was at k clusters, which I took to be the optimal number.
 
-Read about sense2vec here:
+### Labeling
+Both because it was necessary and as a form of validation, I manually labeled each cluster.  To do so, I looked at the 50 most representative nouns/entities in each cluster, chosen by their distance from the center of the cluster.  Based on the words, I came up with an appropriate categorization.
 
-https://spacy.io/blog/sense2vec-with-spacy
-
-You can use an online demo of the technology here:
-
-https://sense2vec.spacy.io
-
-We're currently refining the API, to make this technology easy to use. Once we've completed that, you'll be able
-to download the package on PyPi. For now, the code is available to clarify the blog post.
-
-There are three relevant files in this repository:
-
-#### bin/merge_text.py
-
-This script pre-processes text using spaCy, so that the sense2vec model can be trained using Gensim.
-
-#### bin/train_word2vec.py
-
-This script reads a directory of text files, and then trains a word2vec model using Gensim. The script includes its own
-vocabulary counting code, because Gensim's vocabulary count is a bit slow for our large, sparse vocabulary.
-
-#### sense2vec/vectors.pyx
-
-To serve the similarity queries, we wrote a small vector-store class in Cython. This made it easier to add an efficient
-cache in front of the service. It also less memory than Gensim's Word2Vec class, as it doesn't hold the keys as Python
-unicode strings.
-
-Similarity queries could be faster, if we had made all vectors contiguous in memory, instead of holding them
-as an array of pointers. However, we wanted to allow a `.borrow()` method, so that vectors can be added to the store
-by reference, without copying the data.
-
-Usage
------
-
-The easiest way to download and install the model is by calling ```python -m sense2vec.download``` after installing sense2vec, e.g., via ```pip install -e git+git://github.com/spacy-io/sense2vec.git#egg=sense2vec```:
-
-```
->>> import sense2vec
->>> model = sense2vec.load()
->>> freq, query_vector = model["natural_language_processing|NOUN"]
->>> model.most_similar(query_vector, n=3)
-(['natural_language_processing|NOUN', 'machine_learning|NOUN', 'computer_vision|NOUN'], <MemoryView of 'ndarray'>)
-```
-
-**IMPORTANT** The API is work-in-progress and is subject to change.
-
-For additional performance experimental support for BLAS can be enabled by setting the `USE_BLAS` environment variable before installing (e.g. ```USE_BLAS=1 pip install ...```). This requires an up-to-date BLAS/OpenBlas/Atlas installation.
-
-Support
--------
-
-* CPython 2.6, 2.7, 3.3, 3.4, 3.5 (only 64 bit)
-* OSX
-* Linux
-* Windows
+### Web service
+Rather than require developers to include spaCy as a dependency in their projects, I set up a web service with an API.
