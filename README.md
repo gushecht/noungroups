@@ -22,7 +22,7 @@ noungroups is the simple result of a long process that had the following steps:
 ## Details on the above
 
 ### Part of speech tagging
-Every word has a part of speech.  For example, in the sentence 'the bird ate seeds' the four words are a determiner, a noun, a verb, and a noun, respectively.
+Every word has a part of speech.  For example, in the sentence 'the bird ate seeds' the four words are a determiner, a noun, a verb, and a noun, respectively.  For this project, because I needed to batch process a lot of text (approximately 7GB), I wrote a script that can utilize multiple processes and ran it on a 32-core machine on AWS.
 
 ### word2vec
 word2vec is an algorithm for converting words into vectors.  Excitingly, it was found that the vector representation of a word encodes some of the semantic meaning of the word.  For example, if you take the vector for 'king', subtract the vector for 'man', and add the vector for 'woman', you get the vector for 'queen'.
@@ -31,6 +31,8 @@ Additionally, it was found that the same could be done for other conceptually-re
 <img src="http://deeplearning4j.org/img/countries_capitals.png" width="500px">
 
 From this image of word vectors projected down to two dimensions, it's clear that conceptually-related words occupy regions together.  That was the motivation for this project.
+
+Because I had to process a lot of text, I initially wanted to use Spark's word2vec implementation on a cluster on AWS.  However, I ran into enough issues that I ended up using Gensim's word2vec locally.
 
 ### sense2vec
 One limitation of word2vec is that it treats words with multiple meanings as though they only have one.  For example, the word 'duck' is both a noun and a verb, but word2vec gives 'duck' just one vector representation, instead of two.  sense2vec is a proposed improvement that consists the pre-processing step of part of speech tagging the words before they go into word2vec.  Thus, instead of 'She had to duck when the duck flew by' we have 'She|NOUN had|VERB to|PART duck|VERB when|ADV the|DET duck|NOUN flew|VERB by|ADP'.  'duck' and 'duck' become 'duck|VERB' and 'duck|NOUN', two unique words that get two unique vectors.
@@ -45,6 +47,8 @@ Here's a chart of the cumulative frequency of nouns/entities that validated my c
 
 ### Clustering
 Clustering is an interesting problem when you don't know how many clusters there should be, which was the case with noungroups.  The only option was the brute force method: trying a range of numbers of clusters and seeing which was the best.  I went with two for the minimum and (n / 2) ^ 0.5, in this case ~ 223, for the maximum.  To compare clusterings, I calculated the within set sum of squared errors (WSSSE) for each one.  The WSSSE measures how dispersed each cluster is.  Plotting them in a chart reveals an 'elbow' in the curve where the rate of decrease in WSSSE decreases significantly.  That elbow was at k clusters, which I took to be the optimal number.
+
+Unlike word2vec, this was easier to run on Spark, so I set up a 20-node cluster, since the projected time to complete this task locally was around four days.
 
 ### Labeling
 Both because it was necessary and as a form of validation, I manually labeled each cluster.  To do so, I looked at the 50 most representative nouns/entities in each cluster, chosen by their distance from the center of the cluster.  Based on the words, I came up with an appropriate categorization.
