@@ -39,7 +39,7 @@ def main(nouns_loc, word2vec_loc, n_nouns, out_loc):
 
     logger.info('Pickling noun to vector dictionary')
     # Pickle dictionary
-    with open(path.join(out_loc, 'noun_to_vect_dict.pkl'), 'w') as f:
+    with open(path.join(out_loc, 'noun_to_vect_dict_' + n_nouns + '.pkl'), 'w') as f:
         pickle.dump(noun_to_vect_dict, f)
 
 if __name__ == '__main__':

@@ -27,6 +27,7 @@ echo 'Installing setuptools'
 pssh -h /root/spark-ec2/slaves "wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python27"
 echo 'Installing pip'
 pssh -h /root/spark-ec2/slaves easy_install-2.7 pip
-echo 'Installing numpy'
+echo 'Installing numpy, should take around a minute and a half'
 pssh -t 10000 -h /root/spark-ec2/slaves pip2.7 install numpy
+echo 'Installing gensim, should take around 7 minutes'
 pssh -t 10000 -h /root/spark-ec2/slaves pip2.7 install gensim
