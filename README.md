@@ -19,13 +19,13 @@ noungroups is the simple result of a long process that had the following steps:
 7. Label those clusters
 8. Create a web service with an API that takes your textblobs, part of speech tags the words, and returns the corresponding categorization for each noun/entity based on the labeled clusters.
 
-## Details on some of the above
+## Details on the above
 
 ### Part of speech tagging
 Every word has a part of speech.  For example, in the sentence 'the bird ate seeds' the four words are a determiner, a noun, a verb, and a noun, respectively.
 
 ### word2vec
-word2vec is an algorithm for converting words into vectors.  Excitingly, it was found that the vector representation of a word has encodes some of the semantic meaning of the word.  For example, if you take the vector for 'king', subtract the vector for 'man', and add the vector for 'woman', you get the vector for 'queen'.
+word2vec is an algorithm for converting words into vectors.  Excitingly, it was found that the vector representation of a word encodes some of the semantic meaning of the word.  For example, if you take the vector for 'king', subtract the vector for 'man', and add the vector for 'woman', you get the vector for 'queen'.
 
 Additionally, it was found that the same could be done for other conceptually-related words, such as nations and capitals.
 <img src="http://deeplearning4j.org/img/countries_capitals.png" width="500px">
