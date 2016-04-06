@@ -38,7 +38,7 @@ One limitation of word2vec is that it treats words with multiple meanings as tho
 ### Filtering nouns/entities
 After the part of speech tagging and vectorizing were finished, I had just over 27 million unique nouns/entities (27,137,917) and their vector representations.  I decided to filter that down to the top 100,000 most frequently used in order to reduce the time required for the clustering step.  Additionally, my intuition told me that ignoring less frequent nouns/entities would reduce noise in the clustering step.
 
-Here's a chart of the cumulative frequency of nouns/entities that validated my choice to set aside the vast majority of the nouns/entities.  The x-axis is in 1000s.
+Here's a chart of the cumulative frequency of nouns/entities that validated my choice to set aside the vast majority of the nouns/entities.  The x-axis is in 1000s of nouns/entities, the y axis is total percent frequency.
 
 <img src="images/cumulative_frequencies.png" width="500px">
 
