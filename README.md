@@ -1,7 +1,11 @@
-sense2vec
+noungroups
 =========
 
-*Use spaCy to go beyond vanilla word2vec*
+__Note that this is a preview of what is to come, I am currently on step 5__
+
+*Use noungroups to categorize entities*
+
+The world is full of unstructured text.  noungroups helps you identify what a text is talking about, allowing you to extract structured data from unstructured text.  noungroups is an extention of a named entity recognizer, such as [Stanford's NER](http://nlp.stanford.edu/software/CRF-NER.shtml).  For example, take the sentence "Barack Obama is the president of the United States".  
 
 Read about sense2vec here:
 
