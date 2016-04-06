@@ -1,6 +1,6 @@
 #noungroups
 
-__Note that this is a preview of what is to come, I am currently on step 5__
+__Note that this is a preview of what is to come, I am currently on step 6__
 
 *Use noungroups to precisely recognize entities in text*
 
@@ -36,7 +36,7 @@ From this image of word vectors projected down to two dimensions, it's clear tha
 One limitation of word2vec is that it treats words with multiple meanings as though they only have one.  For example, the word 'duck' is both a noun and a verb, but word2vec gives 'duck' just one vector representation, instead of two.  sense2vec is a proposed improvement that consists the pre-processing step of part of speech tagging the words before they go into word2vec.  Thus, instead of 'She had to duck when the duck flew by' we have 'She|NOUN had|VERB to|PART duck|VERB when|ADV the|DET duck|NOUN flew|VERB by|ADP'.  'duck' and 'duck' become 'duck|VERB' and 'duck|NOUN', two unique words that get two unique vectors.
 
 ### Filtering nouns/entities
-After the part of speech tagging and vectorizing were finished, I had just over 27 million unique nouns/entities and their vector representations.  I decided to filter that down to the top 100,000 most frequently used in order to reduce the time required for the clustering step.  Additionally, my intuition told me that ignoring less frequent nouns/entities would reduce noise in the clustering step.
+After the part of speech tagging and vectorizing were finished, I had just over 27 million unique nouns/entities (27,137,917) and their vector representations.  I decided to filter that down to the top 100,000 most frequently used in order to reduce the time required for the clustering step.  Additionally, my intuition told me that ignoring less frequent nouns/entities would reduce noise in the clustering step.
 
 Here's a chart of the cumulative frequency of nouns/entities.  The x-axis is in 1000s.  The line doesn't reach 1 because I removed a few outlier noun/entities that spaCy tagged, such as 'she' and 'he', that had significantly higher frequencies than other words.
 
