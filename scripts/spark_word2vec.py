@@ -4,7 +4,7 @@ import logging
 import pyspark as ps
 from pyspark.mllib.feature import Word2Vec
 
-in_loc = 's3n://AKIAIH5CUVMKDMLAW26Q:ABHCJrZt1FbG63h4u5AxY3kGp5i+8nWTqguzsSWD@gushecht/pos_tagged'
+in_loc = 's3n://[AWS Key ID]:[AWS Key Secret]@gushecht/pos_tagged'
 
 from os import path
 import cPickle

@@ -14,7 +14,7 @@ pip2.7 install jinja2==2.7.3
 pip2.7 install tornado==4.2
 
 pip2.7 install numpy
-pip2.7 install gensim
+# pip2.7 install gensim
 
 # Install all the necessary packages on Workers
 
@@ -29,5 +29,5 @@ echo 'Installing pip'
 pssh -h /root/spark-ec2/slaves easy_install-2.7 pip
 echo 'Installing numpy, should take around a minute and a half'
 pssh -t 10000 -h /root/spark-ec2/slaves pip2.7 install numpy
-echo 'Installing gensim, should take around 7 minutes'
-pssh -t 10000 -h /root/spark-ec2/slaves pip2.7 install gensim
+# echo 'Installing gensim, should take around 7 minutes'
+# pssh -t 10000 -h /root/spark-ec2/slaves pip2.7 install gensim

@@ -25,7 +25,7 @@ LABELS = [
     out_dir=('Location to write output file'),
 )
 def main(in_dir, out_dir):
-    sc = ps.SparkContext('local[4]')
+    sc = ps.SparkContext()
     text_files = sc.textFile(in_dir)
     counts = text_files.flatMap(lambda line: line.split(' ')) \
                        .filter(lambda word: any(label in word for label in LABELS)) \
