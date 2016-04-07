@@ -32,7 +32,7 @@ def main():
     # Initialize Spark Context
     sc = ps.SparkContext('local[*]')
     # Load data
-    data = sc.parallelize(vectors, 1224)
+    data = sc.parallelize(vectors, 1024)
 
     # Create and fit a KMeans model to the data
     logger.info('Fitting KMeans model')

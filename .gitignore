@@ -66,6 +66,6 @@ target/
 *.pkl
 *.bz2
 *.gz
-saved_objects/*
+saved/*
 wordcount_output/*
 data/*
